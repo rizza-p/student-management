@@ -38,6 +38,43 @@ app.get('/', (req, res) => {
 });
 
 // Start the server (keep this at the bottom)
+
+// Show the Edit form with the student's current data
+app.get('/students/edit/:id', (req, res) => {
+  db.query('SELECT * FROM students WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Database error');
+    }
+    if (results.length === 0) {
+      return res.status(404).send('Student not found');
+    }
+    res.render('edit', { student: results[0] });
+  });
+});
+
+// Save the changes
+app.post('/students/edit/:id', (req, res) => {
+  const { student_id, first_name, last_name, course, year_level, email } = req.body;
+
+  const sql = `
+    UPDATE students
+    SET student_id = ?, first_name = ?, last_name = ?,
+        course = ?, year_level = ?, email = ?
+    WHERE id = ?
+  `;
+
+  const values = [student_id, first_name, last_name, course, year_level, email, req.params.id];
+
+  db.query(sql, values, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Unable to update student');
+    }
+    res.redirect('/');
+  });
+});
+
 // Search students
 app.get('/students/search', (req, res) => {
   const keyword = req.query.keyword || '';
