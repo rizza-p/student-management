@@ -37,6 +37,17 @@ app.get('/', (req, res) => {
   });
 });
 
+// Delete a student
+app.post('/students/delete/:id', (req, res) => {
+  db.query('DELETE FROM students WHERE id = ?', [req.params.id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Unable to delete student');
+    }
+    res.redirect('/');
+  });
+});
+
 // Start the server (keep this at the bottom)
 
 // Show the Edit form with the student's current data
